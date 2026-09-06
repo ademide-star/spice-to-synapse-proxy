@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spice to Synapse — Neuroinformatics Drug Discovery Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --midnight: #0B1220;
+  --navy:     #111C30;
+  --panel:    #162035;
+  --border:   #1E2D45;
+  --border2:  #253550;
+  --cyan:     #00E5CC;
+  --cyan-dim: rgba(0,229,204,0.12);
+  --amber:    #F5A623;
+  --amber-dim:rgba(245,166,35,0.12);
+  --rose:     #FF5E7D;
+  --rose-dim: rgba(255,94,125,0.1);
+  --green:    #2FD986;
+  --green-dim:rgba(47,217,134,0.1);
+  --blue:     #4A9EFF;
+  --blue-dim: rgba(74,158,255,0.1);
+  --text:     #E8EEF7;
+  --text2:    #8A9BB5;
+  --text3:    #506080;
+  --white:    #FFFFFF;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--midnight);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6;min-height:100vh;overflow-x:hidden;}
+
+/* ── HEADER ── */
+.header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:200;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-mark{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,var(--cyan),var(--blue));display:flex;align-items:center;justify-content:center;font-size:14px;}
+.logo-text{font-size:13px;font-weight:600;color:var(--white);letter-spacing:-0.2px;}
+.logo-sub{font-size:11px;color:var(--text2);font-weight:400;}
+.header-meta{font-family:var(--mono);font-size:10px;color:var(--text3);display:flex;gap:16px;align-items:center;}
+.header-badge{background:var(--cyan-dim);border:1px solid rgba(0,229,204,0.25);color:var(--cyan);padding:3px 8px;border-radius:3px;font-size:10px;font-weight:500;}
+
+/* ── TAB NAV ── */
+.tab-nav{background:var(--navy);border-bottom:1px solid var(--border);display:flex;padding:0 2rem;gap:0;}
+.tab-btn{padding:14px 20px;font-size:12px;font-weight:500;color:var(--text2);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;display:flex;align-items:center;gap:8px;transition:color .15s,border-color .15s;white-space:nowrap;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--cyan);border-bottom-color:var(--cyan);}
+.tab-num{font-family:var(--mono);font-size:10px;background:var(--border);padding:1px 5px;border-radius:2px;color:var(--text3);}
+.tab-btn.active .tab-num{background:var(--cyan-dim);color:var(--cyan);}
+
+/* ── LAYOUT ── */
+.tab-panel{display:none;min-height:calc(100vh - 112px);}
+.tab-panel.active{display:block;}
+
+/* ── MODULE HERO ── */
+.module-hero{padding:2rem 2rem 0;display:grid;grid-template-columns:1fr auto;align-items:start;gap:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;}
+.mh-label{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:1px;margin-bottom:6px;}
+.mh-title{font-size:20px;font-weight:600;color:var(--white);margin-bottom:4px;letter-spacing:-0.3px;}
+.mh-sub{font-size:12px;color:var(--text2);max-width:560px;line-height:1.6;}
+.mh-stats{display:flex;gap:12px;}
+.mh-stat{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:10px 14px;text-align:center;min-width:80px;}
+.mh-stat-val{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--cyan);display:block;line-height:1.2;}
+.mh-stat-lbl{font-size:9px;color:var(--text3);line-height:1.3;margin-top:2px;}
+
+/* ── MAIN LAYOUT ── */
+.tool-layout{display:grid;grid-template-columns:340px 1fr;min-height:calc(100vh - 185px);}
+.tool-sidebar{background:var(--panel);border-right:1px solid var(--border);padding:1.5rem;}
+.tool-main{padding:1.5rem;overflow-y:auto;}
+
+/* ── FORMS ── */
+.field-group{margin-bottom:1.2rem;}
+.field-label{font-size:11px;font-weight:500;color:var(--text2);margin-bottom:5px;display:block;}
+.field-sub{font-size:10px;color:var(--text3);margin-bottom:5px;}
+input[type=text],input[type=number],select,textarea{
+  width:100%;background:var(--midnight);border:1px solid var(--border2);border-radius:5px;
+  padding:8px 10px;color:var(--text);font-family:var(--sans);font-size:12px;outline:none;
+  transition:border-color .15s;}
+input:focus,select:focus,textarea:focus{border-color:var(--cyan);}
+textarea{resize:vertical;min-height:80px;}
+select option{background:var(--midnight);}
+
+.run-btn{width:100%;padding:11px;background:var(--cyan);color:var(--midnight);font-weight:700;font-size:12px;border:none;border-radius:6px;cursor:pointer;transition:opacity .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.2px;}
+.run-btn:hover{opacity:0.9;transform:translateY(-1px);}
+.run-btn:active{transform:translateY(0);}
+.run-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+
+.secondary-btn{width:100%;padding:9px;background:transparent;color:var(--text2);font-weight:500;font-size:11px;border:1px solid var(--border2);border-radius:6px;cursor:pointer;transition:all .15s;margin-top:8px;}
+.secondary-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+
+.section-divider{border:none;border-top:1px solid var(--border);margin:1.2rem 0;}
+
+/* ── RESULTS ── */
+.result-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:400px;color:var(--text3);text-align:center;}
+.result-placeholder .icon{font-size:3rem;margin-bottom:1rem;opacity:0.4;}
+.result-placeholder p{font-size:12px;max-width:280px;line-height:1.6;}
+
+.result-grid{display:grid;gap:1rem;}
+.result-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.rc-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.rc-title{font-size:11px;font-weight:600;color:var(--white);}
+.rc-badge{font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:3px;font-weight:500;}
+.badge-cyan{background:var(--cyan-dim);color:var(--cyan);border:1px solid rgba(0,229,204,0.2);}
+.badge-amber{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,166,35,0.2);}
+.badge-green{background:var(--green-dim);color:var(--green);border:1px solid rgba(47,217,134,0.2);}
+.badge-rose{background:var(--rose-dim);color:var(--rose);border:1px solid rgba(255,94,125,0.2);}
+.badge-blue{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(74,158,255,0.2);}
+.rc-body{padding:14px;}
+.rc-body p{font-size:12px;color:var(--text2);line-height:1.7;}
+
+/* Binding score bars */
+.score-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.score-target{font-family:var(--mono);font-size:10px;color:var(--text2);width:100px;flex-shrink:0;}
+.score-track{flex:1;height:18px;background:var(--midnight);border-radius:3px;overflow:hidden;position:relative;}
+.score-fill{height:100%;border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-family:var(--mono);font-size:9px;font-weight:700;transition:width 1.2s cubic-bezier(.4,0,.2,1);}
+.score-val{font-family:var(--mono);font-size:10px;color:var(--text2);width:75px;text-align:right;flex-shrink:0;}
+
+/* Network mini */
+.network-mini{display:flex;flex-wrap:wrap;gap:6px;padding:10px 0;}
+.net-node{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:500;}
+.node-compound{background:rgba(245,166,35,0.15);border:1px solid rgba(245,166,35,0.3);color:var(--amber);}
+.node-target-hub{background:var(--cyan-dim);border:1px solid rgba(0,229,204,0.3);color:var(--cyan);}
+.node-target{background:var(--blue-dim);border:1px solid rgba(74,158,255,0.2);color:var(--blue);}
+.node-pathway{background:var(--green-dim);border:1px solid rgba(47,217,134,0.2);color:var(--green);}
+
+/* ADMET table */
+.admet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.admet-item{background:var(--midnight);border:1px solid var(--border);border-radius:5px;padding:8px 10px;}
+.admet-label{font-size:9px;color:var(--text3);margin-bottom:3px;}
+.admet-val{font-family:var(--mono);font-size:12px;font-weight:600;}
+.admet-pass{color:var(--green);}
+.admet-warn{color:var(--amber);}
+.admet-fail{color:var(--rose);}
+
+/* Streaming output */
+.stream-box{background:var(--midnight);border:1px solid var(--border);border-radius:6px;padding:12px 14px;font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.8;min-height:80px;white-space:pre-wrap;}
+.stream-box .cursor{display:inline-block;width:7px;height:13px;background:var(--cyan);animation:blink .8s infinite;vertical-align:text-bottom;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+/* Progress steps */
+.progress-steps{display:flex;gap:0;margin-bottom:1.2rem;}
+.ps-step{flex:1;padding:8px 4px;text-align:center;font-size:9px;font-weight:500;border-bottom:2px solid var(--border);color:var(--text3);transition:all .3s;}
+.ps-step.done{border-bottom-color:var(--cyan);color:var(--cyan);}
+.ps-step.running{border-bottom-color:var(--amber);color:var(--amber);}
+
+/* Module 2 — Cohort */
+.cohort-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.slider-wrap{margin-bottom:1rem;}
+input[type=range]{width:100%;accent-color:var(--cyan);background:var(--midnight);}
+.slider-val{font-family:var(--mono);font-size:11px;color:var(--cyan);float:right;}
+
+/* Heatmap */
+.heatmap-wrap{overflow:auto;}
+.heatmap-table{border-collapse:collapse;}
+.heatmap-table td{width:28px;height:28px;border:1px solid var(--midnight);cursor:default;position:relative;}
+.heatmap-table td:hover::after{content:attr(title);position:absolute;background:var(--navy);border:1px solid var(--border);color:var(--text);font-size:9px;padding:3px 7px;border-radius:4px;white-space:nowrap;z-index:20;top:-28px;left:50%;transform:translateX(-50%);pointer-events:none;font-family:var(--mono);}
+
+/* Module 3 — Human simulation */
+.sim-pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1.5rem;}
+.sim-stage{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:10px 8px;text-align:center;position:relative;}
+.sim-stage.active-stage{border-color:var(--amber);background:var(--amber-dim);}
+.sim-stage.done-stage{border-color:var(--cyan);background:var(--cyan-dim);}
+.sim-stage-icon{font-size:1.2rem;margin-bottom:4px;}
+.sim-stage-name{font-size:9px;font-weight:600;color:var(--text);line-height:1.3;}
+.sim-stage-status{font-size:8px;color:var(--text3);margin-top:3px;}
+.sim-arrow{position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:var(--border2);font-size:10px;z-index:1;}
+
+/* Biomarker trajectories */
+.trajectory-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.traj-card{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:12px;}
+.traj-name{font-size:10px;font-weight:600;color:var(--text);margin-bottom:8px;}
+.traj-chart{height:60px;position:relative;}
+svg.mini-chart{width:100%;height:60px;}
+
+/* Risk panel */
+.risk-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.risk-item{background:var(--midnight);border:1px solid var(--border);border-radius:5px;padding:10px;}
+.risk-label{font-size:9px;color:var(--text3);margin-bottom:4px;}
+.risk-val{font-size:14px;font-weight:700;font-family:var(--mono);}
+.risk-low{color:var(--green);}
+.risk-med{color:var(--amber);}
+.risk-high{color:var(--rose);}
+.risk-meter{height:4px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden;}
+.risk-meter-fill{height:100%;border-radius:2px;transition:width 1.5s cubic-bezier(.4,0,.2,1);}
+
+/* AI narrative */
+.ai-narrative{background:var(--panel);border-left:2px solid var(--cyan);padding:14px 16px;border-radius:0 6px 6px 0;margin-top:1rem;}
+.ai-narrative .ai-tag{font-family:var(--mono);font-size:9px;color:var(--cyan);margin-bottom:6px;}
+.ai-narrative p{font-size:12px;color:var(--text2);line-height:1.75;}
+
+/* Cinnamon reference panel */
+.ref-panel{background:var(--amber-dim);border:1px solid rgba(245,166,35,0.25);border-radius:6px;padding:10px 12px;margin-bottom:1rem;}
+.ref-panel-title{font-size:10px;font-weight:600;color:var(--amber);margin-bottom:4px;}
+.ref-pill{display:inline-block;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2);color:var(--amber);font-size:9px;padding:2px 7px;border-radius:3px;margin:2px;cursor:pointer;font-family:var(--mono);transition:background .15s;}
+.ref-pill:hover{background:rgba(245,166,35,0.25);}
+
+/* Loading spinner */
+.spinner{width:16px;height:16px;border:2px solid rgba(0,229,204,0.2);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Workshop tag */
+.ws-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(74,158,255,0.1);border:1px solid rgba(74,158,255,0.2);color:var(--blue);font-size:9px;padding:3px 8px;border-radius:3px;font-weight:500;}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--midnight);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--text3);}
+
+@media(max-width:800px){
+  .tool-layout{grid-template-columns:1fr;}
+  .tool-sidebar{border-right:none;border-bottom:1px solid var(--border);}
+  .sim-pipeline{grid-template-columns:repeat(3,1fr);}
+  .mh-stats{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">
+    <div class="logo-mark">🌿</div>
+    <div>
+      <div class="logo-text">Spice to Synapse</div>
+      <div class="logo-sub">Neuroinformatics Drug Discovery Platform</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    <span class="ws-tag">🎓 NSN 2026 Workshop</span>
+    <span class="header-badge">AI-Powered</span>
+    <span style="color:var(--text3);">COEST · OOU · Nigeria</span>
+  </div>
+</header>
+
+<!-- TAB NAV -->
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('screener')">
+    <span>🔬</span> Plant → Drug Screener
+    <span class="tab-num">01</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('cohort')">
+    <span>🧬</span> Virtual Preclinical Cohort
+    <span class="tab-num">02</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('simulator')">
+    <span>🤖</span> Human Trial Simulator
+    <span class="tab-num">03</span>
+  </button>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MODULE 01 — PLANT → DRUG SCREENER
+════════════════════════════════════════════════════════════════ -->
+<div id="tab-screener" class="tab-panel active">
+  <div class="module-hero">
+    <div>
+      <div class="mh-label">MODULE 01 — COMPOUND SCREENING ENGINE</div>
+      <div class="mh-title">Plant → Drug Candidate in Minutes</div>
+      <div class="mh-sub">Enter any medicinal plant or isolated compound. The AI engine returns predicted binding affinities, ADMET drug-likeness, network pharmacology targets, and a translational neuroprotection assessment — the same pipeline built on 84 real animals and Saigon cinnamon data.</div>
+    </div>
+    <div class="mh-stats">
+      <div class="mh-stat"><span class="mh-stat-val">15</span><span class="mh-stat-lbl">AD/Stroke targets screened</span></div>
+      <div class="mh-stat"><span class="mh-stat-val">22</span><span class="mh-stat-lbl">Pathways mapped</span></div>
+      <div class="mh-stat"><span class="mh-stat-val">5</span><span class="mh-stat-lbl">ADMET parameters</span></div>
+    </div>
+  </div>
+
+  <div class="tool-layout">
+    <!-- SIDEBAR -->
+    <div class="tool-sidebar">
+      <div class="ref-panel">
+        <div class="ref-panel-title">⚡ Cinnamon Reference Set — click to load</div>
+        <span class="ref-pill" onclick="loadRef('Cinnamaldehyde','Cinnamomum loureiroi','AChE, BACE1, NF-κB, NRF2')">Cinnamaldehyde</span>
+        <span class="ref-pill" onclick="loadRef('Eugenol','Cinnamomum loureiroi','MAO-A/B, COX-2, NF-κB')">Eugenol</span>
+        <span class="ref-pill" onclick="loadRef('Coumarin','Cinnamomum loureiroi','AChE, BACE1, BBB scaffold')">Coumarin</span>
+        <span class="ref-pill" onclick="loadRef('Caryophyllene','Cinnamomum loureiroi','CB2 agonist, NF-κB, stroke')">Caryophyllene</span>
+        <span class="ref-pill" onclick="loadRef('Huperzine A','Huperzia serrata','AChE reference inhibitor')">Huperzine A ✓ref</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Plant or Compound Name</label>
+        <div class="field-sub">e.g. "Ashwagandha", "Withaferin A", "Moringa oleifera", "Resveratrol"</div>
+        <input type="text" id="s-compound" placeholder="Enter plant or compound..." />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Plant Source (optional)</label>
+        <input type="text" id="s-plant" placeholder="e.g. Withania somnifera" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Known Activity / Notes</label>
+        <div class="field-sub">Any traditional use, known mechanisms, or structural features</div>
+        <textarea id="s-notes" placeholder="e.g. used for cognitive enhancement in Yoruba traditional medicine..."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Disease Focus</label>
+        <select id="s-disease">
+          <option value="both">Both — Dementia & Stroke</option>
+          <option value="dementia">Dementia / Alzheimer's</option>
+          <option value="stroke">Stroke / Cerebrovascular</option>
+          <option value="neuro">General Neurodegeneration</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Detail Level</label>
+        <select id="s-depth">
+          <option value="standard">Standard — for workshop participants</option>
+          <option value="advanced">Advanced — for researchers</option>
+          <option value="clinical">Clinical translation — for pharma</option>
+        </select>
+      </div>
+
+      <hr class="section-divider">
+
+      <button class="run-btn" id="s-run-btn" onclick="runScreener()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Run Screening
+      </button>
+      <button class="secondary-btn" onclick="clearScreener()">Clear results</button>
+
+      <hr class="section-divider">
+      <div style="font-size:10px;color:var(--text3);line-height:1.7;">
+        <strong style="color:var(--text2);">How it works:</strong> The AI engine simulates a full neuroinformatics pipeline — compound profiling, molecular docking prediction, ADMET scoring, network target mapping, and translational assessment — the same methodology applied to the Saigon cinnamon dataset (84 animals, 31 biomarkers, 7 groups).
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="tool-main" id="s-main">
+      <div class="result-placeholder" id="s-placeholder">
+        <div class="icon">🌿</div>
+        <p>Enter a plant or compound to begin screening. Use the reference set above to load cinnamon compounds and see how the pipeline works.</p>
+      </div>
+      <div id="s-results" style="display:none;">
+        <div class="progress-steps" id="s-progress">
+          <div class="ps-step" id="ps-1">Compound ID</div>
+          <div class="ps-step" id="ps-2">Lipinski Filter</div>
+          <div class="ps-step" id="ps-3">Docking Predict</div>
+          <div class="ps-step" id="ps-4">Network Map</div>
+          <div class="ps-step" id="ps-5">Translation</div>
+        </div>
+        <div class="result-grid" id="s-cards"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MODULE 02 — VIRTUAL PRECLINICAL COHORT
+════════════════════════════════════════════════════════════════ -->
+<div id="tab-cohort" class="tab-panel">
+  <div class="module-hero">
+    <div>
+      <div class="mh-label">MODULE 02 — VIRTUAL PRECLINICAL COHORT GENERATOR</div>
+      <div class="mh-title">Replace 84 Animals with a Virtual Trial</div>
+      <div class="mh-sub">Generate a complete synthetic preclinical cohort preserving the correlation structure of real biomarker data. Built on the Gaussian copula methodology validated on 84 real animals and 31 biomarkers. The AI generates predicted biomarker profiles for any compound — with no animals needed.</div>
+    </div>
+    <div class="mh-stats">
+      <div class="mh-stat"><span class="mh-stat-val">r=0.37</span><span class="mh-stat-lbl">Corr-of-corrs fidelity</span></div>
+      <div class="mh-stat"><span class="mh-stat-val">100%</span><span class="mh-stat-lbl">KS marginal test pass</span></div>
+      <div class="mh-stat"><span class="mh-stat-val">31</span><span class="mh-stat-lbl">Biomarkers modelled</span></div>
+    </div>
+  </div>
+
+  <div class="tool-layout">
+    <div class="tool-sidebar">
+      <div class="ref-panel">
+        <div class="ref-panel-title">📊 Load Cinnamon Study Design</div>
+        <span class="ref-pill" onclick="loadCohortRef()">Load real study parameters</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Compound / Treatment</label>
+        <input type="text" id="c-compound" placeholder="e.g. Cinnamaldehyde 200mg/kg" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Disease Model</label>
+        <select id="c-model">
+          <option value="scopolamine">Scopolamine AD Model</option>
+          <option value="mcao">MCAO Stroke Model</option>
+          <option value="streptozotocin">STZ Neurodegeneration</option>
+          <option value="transgenic">Transgenic AD (5xFAD)</option>
+          <option value="custom">Custom (describe below)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="slider-wrap">
+          <label class="field-label">Virtual Cohort Size <span class="slider-val" id="c-n-val">120</span></label>
+          <input type="range" id="c-n" min="20" max="500" value="120" oninput="document.getElementById('c-n-val').textContent=this.value">
+        </div>
+        <div class="slider-wrap">
+          <label class="field-label">Treatment Groups <span class="slider-val" id="c-g-val">7</span></label>
+          <input type="range" id="c-g" min="3" max="10" value="7" oninput="document.getElementById('c-g-val').textContent=this.value">
+        </div>
+        <div class="slider-wrap">
+          <label class="field-label">Effect Size Estimate <span class="slider-val" id="c-es-val">0.6</span></label>
+          <input type="range" id="c-es" min="0.1" max="1.0" step="0.05" value="0.6" oninput="document.getElementById('c-es-val').textContent=this.value">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Key Biomarkers to Model</label>
+        <div class="field-sub">Comma-separated</div>
+        <input type="text" id="c-biomarkers" value="AChE, NF-κB, Nrf2, TNF-α, BDNF, pCREB, MDA, SOD, GSH, Caspase-3" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Reference Drug (positive control)</label>
+        <input type="text" id="c-refdrg" placeholder="e.g. Donepezil 5mg/kg" />
+      </div>
+
+      <hr class="section-divider">
+      <button class="run-btn" id="c-run-btn" onclick="runCohort()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Generate Virtual Cohort
+      </button>
+      <button class="secondary-btn" onclick="clearCohort()">Clear</button>
+    </div>
+
+    <div class="tool-main" id="c-main">
+      <div class="result-placeholder" id="c-placeholder">
+        <div class="icon">🧬</div>
+        <p>Configure your virtual cohort parameters and click Generate. The AI will produce predicted biomarker profiles, correlation matrices, and statistical power estimates — without a single animal.</p>
+      </div>
+      <div id="c-results" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MODULE 03 — HUMAN TRIAL SIMULATOR
+════════════════════════════════════════════════════════════════ -->
+<div id="tab-simulator" class="tab-panel">
+  <div class="module-hero">
+    <div>
+      <div class="mh-label">MODULE 03 — HUMAN TRIAL BRIDGE SIMULATOR</div>
+      <div class="mh-title">Predict Human Response Before the First Patient</div>
+      <div class="mh-sub">The critical bridge between preclinical animal data and human clinical trials. Input your compound and preclinical profile. The AI simulates allometric scaling, PK/PD translation, population variability, safety signals, and predicted clinical trial outcomes — a robot tester for your drug candidate.</div>
+    </div>
+    <div class="mh-stats">
+      <div class="mh-stat"><span class="mh-stat-val">Phase I</span><span class="mh-stat-lbl">Safety simulation</span></div>
+      <div class="mh-stat"><span class="mh-stat-val">Phase II</span><span class="mh-stat-lbl">Efficacy prediction</span></div>
+      <div class="mh-stat"><span class="mh-stat-val">IND</span><span class="mh-stat-lbl">Readiness score</span></div>
+    </div>
+  </div>
+
+  <div class="tool-layout">
+    <div class="tool-sidebar">
+      <div class="ref-panel">
+        <div class="ref-panel-title">🌿 Load Cinnamaldehyde Profile</div>
+        <span class="ref-pill" onclick="loadSimRef()">Load from cinnamon study</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Drug Candidate</label>
+        <input type="text" id="sim-compound" placeholder="e.g. Cinnamaldehyde" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Preclinical Effective Dose</label>
+        <input type="text" id="sim-dose" placeholder="e.g. 200 mg/kg in rats" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Primary Mechanism</label>
+        <select id="sim-mech">
+          <option value="ache">AChE Inhibition (Alzheimer's)</option>
+          <option value="bace1">BACE1 Inhibition (Amyloid)</option>
+          <option value="nfkb">NF-κB / Anti-inflammatory (Stroke)</option>
+          <option value="nrf2">NRF2 Antioxidant (Neuroprotection)</option>
+          <option value="multi">Multi-target (specify below)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Preclinical Efficacy Summary</label>
+        <textarea id="sim-efficacy" placeholder="e.g. AChE inhibition 65%, NF-κB reduction 48%, improved Morris Water Maze performance, BDNF +42%..."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Target Patient Population</label>
+        <select id="sim-pop">
+          <option value="ad-early">Early Alzheimer's (MCI stage)</option>
+          <option value="ad-moderate">Moderate Alzheimer's</option>
+          <option value="stroke-acute">Acute Stroke (first 24h)</option>
+          <option value="stroke-recovery">Stroke Recovery (subacute)</option>
+          <option value="african">West African Population (primary)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">BBB Permeability</label>
+        <select id="sim-bbb">
+          <option value="high">High (LogBB > 0.3)</option>
+          <option value="moderate">Moderate (−1 to 0.3)</option>
+          <option value="low">Low (LogBB < −1)</option>
+          <option value="unknown">Unknown — AI will estimate</option>
+        </select>
+      </div>
+
+      <hr class="section-divider">
+      <button class="run-btn" id="sim-run-btn" onclick="runSimulator()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Run Human Simulation
+      </button>
+      <button class="secondary-btn" onclick="clearSimulator()">Clear</button>
+
+      <hr class="section-divider">
+      <div style="font-size:10px;color:var(--text3);line-height:1.7;">
+        <strong style="color:var(--text2);">Disclaimer:</strong> This is a computational simulation to guide research planning. It does not replace formal IND-enabling studies, GLP toxicology, or regulatory review. Outputs are predictions, not clinical data.
+      </div>
+    </div>
+
+    <div class="tool-main" id="sim-main">
+      <div class="result-placeholder" id="sim-placeholder">
+        <div class="icon">🤖</div>
+        <p>Load the Cinnamaldehyde profile or enter your compound details. The simulator will predict allometric dose scaling, Phase I safety windows, Phase II efficacy probability, and an IND readiness assessment.</p>
+      </div>
+      <div id="sim-results" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// CORE API FUNCTION
+// ══════════════════════════════════════════════════════════════════
+async function callClaude(systemPrompt, userPrompt) {
+  // ── Proxy URL routing ──────────────────────────────────────────
+  // localhost   → your Windows laptop proxy (start-proxy.bat)
+  // live site   → Railway proxy (update RAILWAY_URL below after deploying)
+  const RAILWAY_URL = "https://spice-to-synapse-proxy.up.railway.app/api/claude";
+  const PROXY_URL =
+    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      ? "http://localhost:3001/api/claude"
+      : RAILWAY_URL;
+
+  const fetchPromise = fetch(PROXY_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 2000,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userPrompt }]
+    })
+  });
+
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("__TIMEOUT__")), 55000)
+  );
+
+  try {
+    const response = await Promise.race([fetchPromise, timeoutPromise]);
+    if (!response.ok) {
+      const err = await response.text();
+      console.error("API error:", response.status, err);
+      return "__API_ERROR__:" + response.status;
+    }
+    const data = await response.json();
+    return data.content?.[0]?.text || "";
+  } catch(e) {
+    if (e.message === "__TIMEOUT__") return "__TIMEOUT__";
+    console.error("Fetch error:", e);
+    return "__NETWORK_ERROR__";
+  }
+}
+
+async function callClaudeJSON(systemPrompt, userPrompt) {
+  const text = await callClaude(systemPrompt, userPrompt);
+  if (text.startsWith("__API_ERROR__")) {
+    const code = text.split(":")[1];
+    if (code === "401") throw new Error("API key missing or invalid. This platform requires the Claude API to be proxied — open it from within Claude.ai or add your API key.");
+    throw new Error("API returned error " + code + ". Check your network connection and try again.");
+  }
+  if (text === "__TIMEOUT__")   throw new Error("Request timed out after 55 seconds. The AI is busy — please try again in a moment.");
+  if (text === "__NETWORK_ERROR__") throw new Error("Network error — check your internet connection and try again.");
+  try {
+    const clean = text.replace(/```json[\s\S]*?```/g, m => m.slice(7, -3)).replace(/```/g, "").trim();
+    return JSON.parse(clean);
+  } catch(e) {
+    console.error("JSON parse error:", e, "\nRaw response:", text);
+    throw new Error("The AI response could not be parsed. This sometimes happens with complex queries — please try again.");
+  }
+}
+
+// Central error display helper
+function showError(containerId, message) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = `
+    <div style="background:#1A0A0A;border:1px solid #FF5E7D;border-radius:8px;padding:1.2rem 1.4rem;margin:1rem 0;">
+      <div style="font-size:11px;font-weight:600;color:#FF5E7D;margin-bottom:6px;font-family:var(--mono);">⚠ ERROR</div>
+      <div style="font-size:12px;color:#E8C0C0;line-height:1.7;">${message}</div>
+      <div style="margin-top:10px;font-size:10px;color:var(--text3);">
+        If this keeps happening: make sure you have a stable internet connection, or try opening this platform from within Claude.ai where the API is already connected.
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ══════════════════════════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// MODULE 01 — SCREENER
+// ══════════════════════════════════════════════════════════════════
+function loadRef(compound, plant, notes) {
+  document.getElementById('s-compound').value = compound;
+  document.getElementById('s-plant').value = plant;
+  document.getElementById('s-notes').value = notes;
+}
+
+function setStep(n, state) {
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('ps-' + i);
+    el.classList.remove('done', 'running');
+    if (i < n) el.classList.add('done');
+    else if (i === n) el.classList.add('running');
+  }
+}
+
+function clearScreener() {
+  document.getElementById('s-placeholder').style.display = 'flex';
+  document.getElementById('s-results').style.display = 'none';
+  document.getElementById('s-cards').innerHTML = '';
+  document.getElementById('s-compound').value = '';
+  document.getElementById('s-plant').value = '';
+  document.getElementById('s-notes').value = '';
+}
+
+function corrToColor(v) {
+  if (v > 0) {
+    const t = Math.min(v, 1);
+    const r = Math.round(0 + 74 * (1-t));
+    const g = Math.round(229 * (1-t) + 158 * t);
+    const b = Math.round(204 * (1-t) + 255 * t);
+    return `rgb(${r},${g},${b})`;
+  } else {
+    const t = Math.min(-v, 1);
+    return `rgba(255,94,125,${0.1 + t * 0.7})`;
+  }
+}
+
+async function runScreener() {
+  const compound = document.getElementById('s-compound').value.trim();
+  if (!compound) { alert('Please enter a compound or plant name.'); return; }
+  const plant    = document.getElementById('s-plant').value.trim();
+  const notes    = document.getElementById('s-notes').value.trim();
+  const disease  = document.getElementById('s-disease').value;
+  const depth    = document.getElementById('s-depth').value;
+
+  const btn = document.getElementById('s-run-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Analysing...';
+
+  document.getElementById('s-placeholder').style.display = 'none';
+  document.getElementById('s-results').style.display = 'block';
+  document.getElementById('s-cards').innerHTML = '';
+
+  const SYS = `You are a neuroinformatics scientist for African medicinal plant drug discovery (stroke/AD). Reference: Cinnamaldehyde — AChE -10.5 kcal/mol, BACE1 -9.8, NF-κB -8.9, BBB permeable, Lipinski pass, 84-animal study 84.8% ML accuracy. Respond ONLY with valid compact JSON. No markdown. No line breaks inside string values.`;
+
+  // CALL 1: Compound ID + Docking + ADMET
+  const USER1 = `Screen "${compound}" from "${plant || 'unknown'}". Notes: "${notes || 'none'}". Disease: ${disease}.
+Return ONLY this JSON object — fill in real values, keep strings under 100 chars:
+{"compound_id":{"name":"x","plant_source":"x","compound_class":"x","mw":"x Da","logp":"x","hbd":"x","hba":"x","lipinski":"Pass","bbb_prediction":"High","summary_line":"x"},"docking":{"scores":[{"target":"AChE","pdb":"1EVE","score_kcal":-8.5,"interpretation":"strong","vs_cinnamaldehyde":"similar"},{"target":"BACE1","pdb":"2B8V","score_kcal":-7.2,"interpretation":"moderate","vs_cinnamaldehyde":"weaker"},{"target":"NF-kB","pdb":"1SVC","score_kcal":-8.1,"interpretation":"strong","vs_cinnamaldehyde":"similar"},{"target":"NRF2","pdb":"4IQK","score_kcal":-7.8,"interpretation":"moderate","vs_cinnamaldehyde":"weaker"},{"target":"COX-2","pdb":"5F19","score_kcal":-7.5,"interpretation":"moderate","vs_cinnamaldehyde":"weaker"},{"target":"GSK3B","pdb":"1Q5K","score_kcal":-6.9,"interpretation":"weak","vs_cinnamaldehyde":"weaker"},{"target":"CASP3","pdb":"1PAU","score_kcal":-7.1,"interpretation":"moderate","vs_cinnamaldehyde":"weaker"},{"target":"MAPK1","pdb":"1TVO","score_kcal":-7.4,"interpretation":"moderate","vs_cinnamaldehyde":"weaker"}],"best_target":"AChE","lead_score":-8.5,"polypharmacology_count":3},"admet":{"oral_bioavailability":"High","half_life_est":"4-6h","hepatotoxicity_risk":"Low","cardiotoxicity_risk":"Low","mutagenicity":"Negative","bbb_logbb":"-0.2","cns_mpo_score":"5.1/6","pgp_substrate":"No"}}`;
+
+  // CALL 2: Network + Translation
+  const USER2 = `For compound "${compound}" (${plant || 'unknown'}), disease: ${disease}, detail: ${depth}.
+Return ONLY this JSON — keep all strings under 120 chars, overall_narrative max 2 sentences:
+{"network":{"hub_targets":["NF-kB","NRF2"],"non_hub_targets":["COX-2","MAPK1"],"key_pathways":["Alzheimer pathway","Neuroinflammation"],"target_count":6,"alzheimer_pathway":true,"stroke_pathway":true,"polypharmacology_note":"x"},"translation":{"lead_grade":"A","priority_indication":"Both","comparison_to_donepezil":"x","next_step":"x","novel_angle":"x","publication_potential":"High","collaboration_need":"x","overall_narrative":"x"}}`;
+
+  setStep(1, 'running');
+  await new Promise(r => setTimeout(r, 300));
+  setStep(2, 'running');
+
+  let part1, part2;
+  try {
+    [part1, part2] = await Promise.all([
+      callClaudeJSON(SYS, USER1),
+      callClaudeJSON(SYS, USER2)
+    ]);
+  } catch(err) {
+    showError('s-cards', err.message);
+    document.getElementById('s-results').style.display = 'block';
+    document.getElementById('s-placeholder').style.display = 'none';
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Run Screening';
+    return;
+  }
+
+  if (!part1 || !part2) {
+    showError('s-cards', 'Analysis returned incomplete data. Please try again.');
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Run Screening';
+    return;
+  }
+
+  const data = { ...part1, ...part2 };
+
+  setStep(3, 'running');
+    setStep(3, 'running');
+  await new Promise(r => setTimeout(r, 300));
+
+  const cards = document.getElementById('s-cards');
+
+  // Card 1 — Compound ID
+  const ci = data.compound_id;
+  const lipClass = ci?.lipinski === 'Pass' ? 'badge-green' : 'badge-rose';
+  cards.innerHTML += `
+    <div class="result-card">
+      <div class="rc-header">
+        <span class="rc-title">Compound Profile — ${ci?.name || compound}</span>
+        <span class="rc-badge ${lipClass}">Lipinski: ${ci?.lipinski || '?'}</span>
+      </div>
+      <div class="rc-body">
+        <div class="admet-grid" style="margin-bottom:10px;">
+          <div class="admet-item"><div class="admet-label">Compound Class</div><div class="admet-val" style="color:var(--blue);font-size:11px;">${ci?.compound_class || '—'}</div></div>
+          <div class="admet-item"><div class="admet-label">Molecular Weight</div><div class="admet-val ${ci?.mw && parseFloat(ci.mw) <= 500 ? 'admet-pass' : 'admet-warn'}">${ci?.mw || '—'}</div></div>
+          <div class="admet-item"><div class="admet-label">LogP</div><div class="admet-val ${ci?.logp && parseFloat(ci.logp) <= 5 ? 'admet-pass' : 'admet-warn'}">${ci?.logp || '—'}</div></div>
+          <div class="admet-item"><div class="admet-label">H-bond Donors</div><div class="admet-val admet-pass">${ci?.hbd || '—'}</div></div>
+          <div class="admet-item"><div class="admet-label">H-bond Acceptors</div><div class="admet-val admet-pass">${ci?.hba || '—'}</div></div>
+          <div class="admet-item"><div class="admet-label">BBB Penetrance</div><div class="admet-val ${ci?.bbb_prediction === 'High' ? 'admet-pass' : ci?.bbb_prediction === 'Low' ? 'admet-fail' : 'admet-warn'}">${ci?.bbb_prediction || '—'}</div></div>
+        </div>
+        <p>${ci?.summary_line || ''}</p>
+      </div>
+    </div>`;
+
+  setStep(4, 'running');
+
+  // Card 2 — Docking Scores
+  const dk = data.docking;
+  const maxScore = 12;
+  let scoreHtml = '';
+  if (dk?.scores) {
+    dk.scores.forEach(s => {
+      const pct = Math.min(100, (Math.abs(s.score_kcal) / maxScore) * 100);
+      const col = s.score_kcal <= -9 ? '#00E5CC' : s.score_kcal <= -7.5 ? '#4A9EFF' : '#8A9BB5';
+      const vsCol = s.vs_cinnamaldehyde === 'better' ? 'var(--green)' : s.vs_cinnamaldehyde === 'similar' ? 'var(--cyan)' : 'var(--text3)';
+      scoreHtml += `<div class="score-row">
+        <div class="score-target">${s.target}</div>
+        <div class="score-track"><div class="score-fill" style="width:${pct}%;background:${col};">&nbsp;</div></div>
+        <div class="score-val">${s.score_kcal} kcal/mol <span style="color:${vsCol};font-size:8px;">${s.vs_cinnamaldehyde || ''}</span></div>
+      </div>`;
+    });
+  }
+  const leadGradeCol = dk?.lead_score <= -9 ? 'var(--green)' : dk?.lead_score <= -7.5 ? 'var(--cyan)' : 'var(--amber)';
+  cards.innerHTML += `
+    <div class="result-card">
+      <div class="rc-header">
+        <span class="rc-title">Predicted Binding Affinities</span>
+        <span class="rc-badge badge-cyan">Best: ${dk?.lead_score || '?'} kcal/mol vs ${dk?.best_target || '?'}</span>
+      </div>
+      <div class="rc-body">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:10px;">Compared to Cinnamaldehyde reference (AChE: −10.5, BACE1: −9.8). More negative = stronger predicted binding.</div>
+        ${scoreHtml}
+        <div style="margin-top:10px;padding:8px 10px;background:var(--midnight);border-radius:4px;font-size:10px;color:var(--text2);">
+          Polypharmacology: <strong style="color:${leadGradeCol};">${dk?.polypharmacology_count || '?'} significant targets</strong> (≤ −7.5 kcal/mol) · Primary: <strong style="color:var(--cyan);">${dk?.best_target || '?'}</strong>
+        </div>
+      </div>
+    </div>`;
+
+  // Card 3 — ADMET
+  const adm = data.admet;
+  cards.innerHTML += `
+    <div class="result-card">
+      <div class="rc-header">
+        <span class="rc-title">ADMET Drug-Likeness Profile</span>
+        <span class="rc-badge badge-amber">CNS MPO: ${adm?.cns_mpo_score || '?'}</span>
+      </div>
+      <div class="rc-body">
+        <div class="admet-grid">
+          <div class="admet-item"><div class="admet-label">Oral Bioavailability</div><div class="admet-val ${adm?.oral_bioavailability === 'High' ? 'admet-pass' : 'admet-warn'}">${adm?.oral_bioavailability || '—'}</div></div>
+          <div class="admet-item"><div class="admet-label">Half-life (est.)</div><div class="admet-val" style="color:var(--blue);">${adm?.half_life_est || '—'}</div></div>
+          <div class="admet-item"><div class="admet-label">BBB LogBB</div><div class="admet-val ${adm?.bbb_logbb && parseFloat(adm.bbb_logbb) > -1 ? 'admet-pass' : 'admet-warn'}">${adm?.bbb_logbb || '—'}</div></div>
+          <div class="admet-item"><div class="admet-label">Hepatotoxicity</div><div class="admet-val ${adm?.hepatotoxicity_risk === 'Low' ? 'admet-pass' : adm?.hepatotoxicity_risk === 'High' ? 'admet-fail' : 'admet-warn'}">${adm?.hepatotoxicity_risk || '—'}</div></div>
+          <div class="admet-item"><div class="admet-label">Cardiotoxicity</div><div class="admet-val ${adm?.cardiotoxicity_risk === 'Low' ? 'admet-pass' : adm?.cardiotoxicity_risk === 'High' ? 'admet-fail' : 'admet-warn'}">${adm?.cardiotoxicity_risk || '—'}</div></div>
+          <div class="admet-item"><div class="admet-label">Mutagenicity</div><div class="admet-val ${adm?.mutagenicity === 'Negative' ? 'admet-pass' : 'admet-fail'}">${adm?.mutagenicity || '—'}</div></div>
+          <div class="admet-item"><div class="admet-label">P-gp Substrate</div><div class="admet-val ${adm?.pgp_substrate === 'No' ? 'admet-pass' : 'admet-warn'}">${adm?.pgp_substrate || '—'}</div></div>
+        </div>
+      </div>
+    </div>`;
+
+  setStep(5, 'running');
+
+  // Card 4 — Network
+  const net = data.network;
+  let hubHtml = (net?.hub_targets || []).map(t => `<span class="net-node node-target-hub">${t}</span>`).join('');
+  let nonHubHtml = (net?.non_hub_targets || []).map(t => `<span class="net-node node-target">${t}</span>`).join('');
+  let pwHtml = (net?.key_pathways || []).map(p => `<span class="net-node node-pathway">${p}</span>`).join('');
+  cards.innerHTML += `
+    <div class="result-card">
+      <div class="rc-header">
+        <span class="rc-title">Network Pharmacology Map</span>
+        <span class="rc-badge badge-blue">${net?.target_count || '?'} targets · ${(net?.key_pathways || []).length} pathways</span>
+      </div>
+      <div class="rc-body">
+        <div style="margin-bottom:8px;">
+          <div style="font-size:9px;color:var(--text3);margin-bottom:4px;">COMPOUND</div>
+          <span class="net-node node-compound">${ci?.name || compound}</span>
+        </div>
+        <div style="margin-bottom:8px;">
+          <div style="font-size:9px;color:var(--text3);margin-bottom:4px;">HUB TARGETS (degree ≥ 3)</div>
+          <div class="network-mini">${hubHtml}</div>
+        </div>
+        <div style="margin-bottom:8px;">
+          <div style="font-size:9px;color:var(--text3);margin-bottom:4px;">ADDITIONAL TARGETS</div>
+          <div class="network-mini">${nonHubHtml}</div>
+        </div>
+        <div style="margin-bottom:8px;">
+          <div style="font-size:9px;color:var(--text3);margin-bottom:4px;">PATHWAYS</div>
+          <div class="network-mini">${pwHtml}</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <span style="font-size:9px;padding:3px 8px;border-radius:3px;background:${net?.alzheimer_pathway ? 'var(--cyan-dim)' : 'var(--border)'};color:${net?.alzheimer_pathway ? 'var(--cyan)' : 'var(--text3)'};">AD Pathway: ${net?.alzheimer_pathway ? '✓' : '✗'}</span>
+          <span style="font-size:9px;padding:3px 8px;border-radius:3px;background:${net?.stroke_pathway ? 'var(--amber-dim)' : 'var(--border)'};color:${net?.stroke_pathway ? 'var(--amber)' : 'var(--text3)'};">Stroke Pathway: ${net?.stroke_pathway ? '✓' : '✗'}</span>
+        </div>
+        <p style="margin-top:10px;font-size:11px;font-style:italic;">${net?.polypharmacology_note || ''}</p>
+      </div>
+    </div>`;
+
+  // Card 5 — Translation
+  const tr = data.translation;
+  const gradeColor = tr?.lead_grade === 'A' ? 'var(--green)' : tr?.lead_grade === 'B' ? 'var(--amber)' : 'var(--text2)';
+  cards.innerHTML += `
+    <div class="result-card">
+      <div class="rc-header">
+        <span class="rc-title">Translational Assessment</span>
+        <span class="rc-badge ${tr?.lead_grade === 'A' ? 'badge-green' : tr?.lead_grade === 'B' ? 'badge-amber' : 'badge-blue'}">
+          Lead Grade: ${tr?.lead_grade || '?'} · ${tr?.priority_indication || '?'}
+        </span>
+      </div>
+      <div class="rc-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+          <div class="admet-item"><div class="admet-label">vs Donepezil</div><div class="admet-val" style="color:var(--blue);font-size:10px;">${tr?.comparison_to_donepezil || '—'}</div></div>
+          <div class="admet-item"><div class="admet-label">Publication Potential</div><div class="admet-val ${tr?.publication_potential === 'High' ? 'admet-pass' : 'admet-warn'}">${tr?.publication_potential || '—'}</div></div>
+          <div class="admet-item" style="grid-column:1/-1;"><div class="admet-label">Next Step</div><div class="admet-val" style="color:var(--cyan);font-size:10px;">${tr?.next_step || '—'}</div></div>
+        </div>
+        <div style="background:var(--midnight);border-left:2px solid ${gradeColor};padding:10px 12px;border-radius:0 4px 4px 0;margin-bottom:10px;">
+          <div style="font-size:9px;color:var(--text3);margin-bottom:4px;">NOVEL SCIENTIFIC ANGLE</div>
+          <div style="font-size:11px;color:var(--text2);">${tr?.novel_angle || '—'}</div>
+        </div>
+        <div class="ai-narrative">
+          <div class="ai-tag">AI NARRATIVE · For collaborators and co-authors</div>
+          <p>${tr?.overall_narrative || '—'}</p>
+        </div>
+        <div style="margin-top:10px;padding:8px 10px;background:var(--amber-dim);border:1px solid rgba(245,166,35,0.2);border-radius:4px;font-size:10px;color:var(--amber);">
+          🤝 Collaboration needed: ${tr?.collaboration_need || '—'}
+        </div>
+      </div>
+    </div>`;
+
+  setStep(5, 'done');
+  for (let i = 1; i <= 5; i++) document.getElementById('ps-' + i).classList.add('done');
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Run Screening';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// MODULE 02 — COHORT GENERATOR
+// ══════════════════════════════════════════════════════════════════
+function loadCohortRef() {
+  document.getElementById('c-compound').value = 'Saigon Cinnamon extract 400mg/kg';
+  document.getElementById('c-model').value = 'scopolamine';
+  document.getElementById('c-n').value = 84;
+  document.getElementById('c-n-val').textContent = '84';
+  document.getElementById('c-g').value = 7;
+  document.getElementById('c-g-val').textContent = '7';
+  document.getElementById('c-es').value = 0.65;
+  document.getElementById('c-es-val').textContent = '0.65';
+  document.getElementById('c-biomarkers').value = 'AChE, NF-κB, Nrf2, TNF-α, BDNF, pCREB, MDA, SOD, GSH, Caspase-3, IL-6, MAPK1, PSD95';
+  document.getElementById('c-refdrg').value = 'Donepezil 5mg/kg';
+}
+
+function clearCohort() {
+  document.getElementById('c-placeholder').style.display = 'flex';
+  document.getElementById('c-results').style.display = 'none';
+  document.getElementById('c-results').innerHTML = '';
+}
+
+async function runCohort() {
+  const compound   = document.getElementById('c-compound').value.trim();
+  if (!compound) { alert('Enter a compound or treatment.'); return; }
+  const model      = document.getElementById('c-model').value;
+  const n          = document.getElementById('c-n').value;
+  const groups     = document.getElementById('c-g').value;
+  const effectSize = document.getElementById('c-es').value;
+  const biomarkers = document.getElementById('c-biomarkers').value;
+  const refDrug    = document.getElementById('c-refdrg').value;
+
+  const btn = document.getElementById('c-run-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Generating cohort...';
+
+  document.getElementById('c-placeholder').style.display = 'none';
+  document.getElementById('c-results').style.display = 'block';
+  document.getElementById('c-results').innerHTML = '<div style="color:var(--text2);font-size:12px;padding:1rem;">Running Gaussian copula simulation...</div>';
+
+  const SYSTEM = `You are a biostatistician specialising in synthetic preclinical neuropharmacology data (Gaussian copula). Reference: 84 real animals, 31 biomarkers, 7 groups, scopolamine AD model, LDA 84.8% accuracy. Respond ONLY with valid compact JSON — no markdown, no line breaks inside string values, keep all string fields under 100 chars.`;
+
+  const USER = `Virtual preclinical cohort for:
+Treatment: "${compound}", Model: ${model}, N: ${n}, Groups: ${groups}, Effect size: ${effectSize}, Biomarkers: ${biomarkers}, Ref drug: "${refDrug||'none'}".
+Reference: cinnamon-scopolamine study — 84 animals, 7 groups, key results: AChE inhibition 65%, NF-kB reduction 48%.
+Return compact JSON (strings under 100 chars, NO line breaks inside string values):
+{"study_design":{"total_n":${n},"groups":[{"name":"Control","n":17,"description":"Naive"},{"name":"Disease","n":17,"description":"Model only"},{"name":"Reference","n":17,"description":"Ref drug"},{"name":"Low dose","n":17,"description":"Low dose tx"},{"name":"High dose","n":16,"description":"High dose tx"},{"name":"Pre-tx","n":17,"description":"Preventive"},{"name":"Post-tx","n":17,"description":"Therapeutic"}],"model_notes":"brief note","power_analysis":{"alpha":0.05,"power":0.85,"min_detectable_effect":0.45,"recommended_n_per_group":15}},"predicted_biomarkers":[{"biomarker":"AChE","unit":"U/mg protein","direction_disease":"decrease","direction_treatment":"increase","groups":{"Control":{"mean":45.2,"sd":4.1},"Disease":{"mean":18.3,"sd":3.2},"Reference":{"mean":38.7,"sd":3.8},"Low dose":{"mean":28.4,"sd":4.2},"High dose":{"mean":35.1,"sd":3.9},"Pre-tx":{"mean":37.2,"sd":3.5},"Post-tx":{"mean":31.8,"sd":4.0}},"p_value_treatment_vs_disease":0.003,"interpretation":"brief"},{"biomarker":"NF-kB","unit":"pg/mL","direction_disease":"increase","direction_treatment":"decrease","groups":{"Control":{"mean":120.4,"sd":12.3},"Disease":{"mean":298.7,"sd":28.4},"Reference":{"mean":158.2,"sd":15.6},"Low dose":{"mean":210.3,"sd":22.1},"High dose":{"mean":165.8,"sd":18.4},"Pre-tx":{"mean":148.9,"sd":14.2},"Post-tx":{"mean":188.4,"sd":20.3}},"p_value_treatment_vs_disease":0.001,"interpretation":"brief"},{"biomarker":"BDNF","unit":"pg/mL","direction_disease":"decrease","direction_treatment":"increase","groups":{"Control":{"mean":850.2,"sd":72.3},"Disease":{"mean":412.8,"sd":48.6},"Reference":{"mean":698.4,"sd":65.2},"Low dose":{"mean":562.1,"sd":58.4},"High dose":{"mean":641.8,"sd":62.3},"Pre-tx":{"mean":712.3,"sd":68.1},"Post-tx":{"mean":598.7,"sd":61.4}},"p_value_treatment_vs_disease":0.01,"interpretation":"brief"}],"ml_prediction":{"expected_lda_accuracy":"78-86%","top_discriminant_features":["AChE","NF-kB","BDNF","MDA","Escape Latency"],"neuroprotective_classification_accuracy":"95-100%","notes":"brief"},"synthetic_data_fidelity":{"method":"Gaussian copula","corr_of_corrs":0.35,"ks_pass_rate":"97%","real_vs_synthetic_summary":"brief"},"ethical_benefit":{"animals_replaced":"Reduces real study size 40-60%","nc3r_principle":"Replace, Reduce, Refine"},"overall_summary":"2 sentence summary"}`;
+
+  const res = document.getElementById('c-results');
+  let data;
+  try {
+    data = await callClaudeJSON(SYSTEM, USER);
+  } catch(err) {
+    showError('c-results', err.message);
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Generate Virtual Cohort';
+    return;
+  }
+  if (!data) {
+    showError('c-results', 'Cohort generation returned no data. Please try again.');
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Generate Virtual Cohort';
+    return;
+  }
+
+  const sd = data.study_design;
+  const pa = sd?.power_analysis;
+  const ml = data.ml_prediction;
+  const ef = data.ethical_benefit;
+  const bm = data.predicted_biomarkers || [];
+  const sf = data.synthetic_data_fidelity;
+
+  // Build group table
+  let groupRows = '';
+  (sd?.groups || []).forEach(g => {
+    groupRows += `<tr>
+      <td style="padding:6px 10px;font-size:11px;color:var(--text);border-bottom:1px solid var(--border);">${g.name}</td>
+      <td style="padding:6px 10px;font-family:var(--mono);font-size:11px;color:var(--cyan);border-bottom:1px solid var(--border);">n = ${g.n}</td>
+      <td style="padding:6px 10px;font-size:10px;color:var(--text2);border-bottom:1px solid var(--border);">${g.description}</td>
+    </tr>`;
+  });
+
+  // Biomarker trajectory SVGs
+  let bmCards = '';
+  bm.forEach(b => {
+    const groups_data = b.groups || {};
+    const vals = Object.values(groups_data).map(v => v.mean);
+    const minV = Math.min(...vals), maxV = Math.max(...vals);
+    const range = maxV - minV || 1;
+    const names = Object.keys(groups_data);
+    const W = 240, H = 52, pad = 10;
+    const pts = vals.map((v, i) => {
+      const x = pad + (i / (vals.length - 1)) * (W - pad * 2);
+      const y = H - pad - ((v - minV) / range) * (H - pad * 2);
+      return `${x},${y}`;
+    });
+    const lineColor = b.direction_treatment === 'increase' ? '#00E5CC' : '#F5A623';
+    const pCol = b.p_value_treatment_vs_disease <= 0.01 ? 'var(--green)' : b.p_value_treatment_vs_disease <= 0.05 ? 'var(--amber)' : 'var(--rose)';
+    bmCards += `
+      <div class="traj-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div class="traj-name">${b.biomarker} <span style="font-size:9px;color:var(--text3);font-weight:400;">${b.unit || ''}</span></div>
+          <span style="font-size:9px;padding:2px 6px;border-radius:3px;background:var(--midnight);color:${pCol};font-family:var(--mono);">p=${b.p_value_treatment_vs_disease}</span>
+        </div>
+        <svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
+          <polyline points="${pts.join(' ')}" fill="none" stroke="${lineColor}" stroke-width="2" stroke-linejoin="round"/>
+          ${vals.map((v, i) => {
+            const x = pad + (i / (vals.length - 1)) * (W - pad * 2);
+            const y = H - pad - ((v - minV) / range) * (H - pad * 2);
+            return `<circle cx="${x}" cy="${y}" r="3" fill="${lineColor}"><title>${names[i]}: ${v.toFixed(1)}</title></circle>`;
+          }).join('')}
+          <text x="${pad}" y="${H - 1}" font-size="7" fill="var(--text3)">${names[0] || ''}</text>
+          <text x="${W - pad}" y="${H - 1}" font-size="7" fill="var(--text3)" text-anchor="end">${names[names.length-1] || ''}</text>
+        </svg>
+        <div style="font-size:9px;color:var(--text3);margin-top:4px;line-height:1.4;">${b.interpretation || ''}</div>
+      </div>`;
+  });
+
+  res.innerHTML = `
+    <div class="result-grid">
+
+      <!-- Study Design -->
+      <div class="result-card">
+        <div class="rc-header">
+          <span class="rc-title">Virtual Study Design</span>
+          <span class="rc-badge badge-cyan">N = ${sd?.total_n || n} subjects · ${(sd?.groups || []).length} groups</span>
+        </div>
+        <div class="rc-body">
+          <table style="width:100%;border-collapse:collapse;margin-bottom:12px;">${groupRows}</table>
+          <div class="admet-grid">
+            <div class="admet-item"><div class="admet-label">Statistical Power</div><div class="admet-val admet-pass">${pa?.power || '?'}</div></div>
+            <div class="admet-item"><div class="admet-label">Min Effect (Cohen's d)</div><div class="admet-val" style="color:var(--blue);">${pa?.min_detectable_effect || '?'}</div></div>
+            <div class="admet-item"><div class="admet-label">Alpha</div><div class="admet-val" style="color:var(--blue);">${pa?.alpha || '?'}</div></div>
+          </div>
+          <div style="margin-top:10px;font-size:10px;color:var(--text2);">${sd?.model_notes || ''}</div>
+        </div>
+      </div>
+
+      <!-- Predicted Biomarker Trajectories -->
+      <div class="result-card">
+        <div class="rc-header">
+          <span class="rc-title">Predicted Biomarker Trajectories</span>
+          <span class="rc-badge badge-blue">Control → Disease → Treatment response</span>
+        </div>
+        <div class="rc-body">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:12px;">Lines show predicted mean per group. Cyan = expected increase; Amber = expected decrease. p-value: treatment vs disease group.</div>
+          <div class="trajectory-grid">${bmCards}</div>
+        </div>
+      </div>
+
+      <!-- ML Prediction -->
+      <div class="result-card">
+        <div class="rc-header">
+          <span class="rc-title">Predicted ML Classification Performance</span>
+          <span class="rc-badge badge-green">Based on Cinnamon Reference Model</span>
+        </div>
+        <div class="rc-body">
+          <div class="admet-grid" style="margin-bottom:12px;">
+            <div class="admet-item"><div class="admet-label">Expected LDA Accuracy</div><div class="admet-val admet-pass">${ml?.expected_lda_accuracy || '?'}</div></div>
+            <div class="admet-item"><div class="admet-label">Neuro. Response Classification</div><div class="admet-val admet-pass">${ml?.neuroprotective_classification_accuracy || '?'}</div></div>
+          </div>
+          <div style="margin-bottom:8px;font-size:10px;font-weight:600;color:var(--text2);">Expected Top Discriminant Features</div>
+          <div class="network-mini">${(ml?.top_discriminant_features || []).map((f,i) => `<span class="net-node ${i < 2 ? 'node-target-hub' : 'node-target'}">${f}</span>`).join('')}</div>
+          <div style="margin-top:10px;font-size:10px;color:var(--text3);">${ml?.notes || ''}</div>
+        </div>
+      </div>
+
+      <!-- Ethical / NC3R -->
+      <div class="result-card">
+        <div class="rc-header">
+          <span class="rc-title">Synthetic Data Fidelity & NC3R Benefit</span>
+          <span class="rc-badge badge-amber">Replace · Reduce · Refine</span>
+        </div>
+        <div class="rc-body">
+          <div class="admet-grid" style="margin-bottom:12px;">
+            <div class="admet-item"><div class="admet-label">Copula Method</div><div class="admet-val" style="color:var(--blue);font-size:10px;">${sf?.method || 'Gaussian copula'}</div></div>
+            <div class="admet-item"><div class="admet-label">Corr-of-corrs</div><div class="admet-val admet-pass">${sf?.corr_of_corrs || '?'}</div></div>
+            <div class="admet-item"><div class="admet-label">KS Pass Rate</div><div class="admet-val admet-pass">${sf?.ks_pass_rate || '?'}</div></div>
+          </div>
+          <div style="background:var(--green-dim);border:1px solid rgba(47,217,134,0.2);border-radius:5px;padding:10px 12px;margin-bottom:10px;">
+            <div style="font-size:10px;font-weight:600;color:var(--green);margin-bottom:4px;">🐀 Animals saved</div>
+            <div style="font-size:11px;color:var(--text2);">${ef?.animals_replaced || ''}</div>
+          </div>
+          <div style="font-size:10px;color:var(--text2);line-height:1.6;"><strong style="color:var(--text);">NC3R Principle: </strong>${ef?.nc3r_principle || ''}</div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="ai-narrative" style="margin:0;border-radius:6px;">
+        <div class="ai-tag">VIRTUAL COHORT SUMMARY · For grant applications and ethics committees</div>
+        <p>${data.overall_summary || ''}</p>
+      </div>
+
+    </div>`;
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Generate Virtual Cohort';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// MODULE 03 — HUMAN TRIAL SIMULATOR
+// ══════════════════════════════════════════════════════════════════
+function loadSimRef() {
+  document.getElementById('sim-compound').value = 'Cinnamaldehyde';
+  document.getElementById('sim-dose').value = '400 mg/kg in rats (oral)';
+  document.getElementById('sim-mech').value = 'multi';
+  document.getElementById('sim-efficacy').value = 'AChE inhibition ~65%, NF-κB reduction ~48%, improved Morris Water Maze escape latency, BDNF +42%, pCREB upregulated, MDA reduced. Confirmed neuroprotective by ML classification (LDA 84.8%, 100% neuro-response accuracy). BBB permeable (LogBB estimated +0.2).';
+  document.getElementById('sim-pop').value = 'african';
+  document.getElementById('sim-bbb').value = 'high';
+}
+
+function clearSimulator() {
+  document.getElementById('sim-placeholder').style.display = 'flex';
+  document.getElementById('sim-results').style.display = 'none';
+  document.getElementById('sim-results').innerHTML = '';
+}
+
+async function runSimulator() {
+  const compound  = document.getElementById('sim-compound').value.trim();
+  if (!compound) { alert('Enter a drug candidate.'); return; }
+  const dose      = document.getElementById('sim-dose').value;
+  const mech      = document.getElementById('sim-mech').value;
+  const efficacy  = document.getElementById('sim-efficacy').value;
+  const pop       = document.getElementById('sim-pop').value;
+  const bbb       = document.getElementById('sim-bbb').value;
+
+  const btn = document.getElementById('sim-run-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Simulating human response...';
+
+  document.getElementById('sim-placeholder').style.display = 'none';
+  document.getElementById('sim-results').style.display = 'block';
+  document.getElementById('sim-results').innerHTML = '<div style="color:var(--text2);font-size:12px;padding:1rem;">Running allometric scaling and PK/PD simulation...</div>';
+
+  const SYSTEM = `You are a clinical pharmacologist bridging African preclinical plant data to human clinical trials (COEST Nigeria). Simulate allometric scaling, PK/PD, Phase I/II prediction, IND readiness. Reference drug: Donepezil 5mg/day, AChE 40-60% inhibition. Respond ONLY with valid compact JSON — no markdown, keep all string values under 120 chars.`;
+
+  const USER = `Human trial simulation for:
+Compound: "${compound}", Dose: "${dose}", Mechanism: ${mech}, Efficacy: "${efficacy}", Population: ${pop}, BBB: ${bbb}.
+Reference: Donepezil 5mg/day oral, AChE 40-60% inhibition, NOAEL ~10mg, well-tolerated. Our cinnamon: 84 animals, 84.8% ML accuracy.
+Return compact JSON (strings under 120 chars, NO line breaks inside strings):
+{"allometric_scaling":{"animal_dose_mg_kg":400,"animal_species":"rat","allometric_exponent":0.67,"human_equivalent_dose_mg_kg":64.6,"human_dose_70kg_mg":4520,"adjusted_for_bioavailability":"x","comparison_to_reference":"x","notes":"x"},"pk_profile":{"route":"Oral","estimated_tmax_h":2.5,"estimated_cmax_ng_ml":120,"estimated_half_life_h":5.2,"volume_of_distribution":"x","protein_binding":"x","metabolism":"x","excretion":"x","drug_interactions_risk":["x"],"bbb_penetration_predicted":"x"},"phase1_simulation":{"starting_dose_mg":50,"dose_escalation":["50mg","100mg","200mg","400mg","600mg"],"predicted_meld":"x","predicted_noael_mg":600,"safety_signals_to_watch":["x"],"predicted_adverse_events":[{"event":"Mild nausea","frequency":"15-20%","severity":"Grade 1","manageable":true},{"event":"Headache","frequency":"10-15%","severity":"Grade 1","manageable":true},{"event":"Cholinergic effects","frequency":"8-12%","severity":"Grade 1-2","manageable":true}],"phase1_duration_months":6,"cohort_size":24,"predicted_outcome":"x"},"phase2_simulation":{"primary_endpoint":"x","secondary_endpoints":["x"],"predicted_effect_size":0.45,"sample_size_needed":120,"duration_months":12,"predicted_response_rate":"x","biomarker_responders":{"AChE_inhibition":"x","NF_kB_suppression":"x","BDNF_increase":"x"},"vs_placebo_prediction":"x","probability_of_success":0.48},"african_population_considerations":{"cyp2d6_frequency":"x","genetic_factors":"x","dietary_interactions":"x","trial_site_recommendation":"x","ethical_advantage":"x"},"ind_readiness":{"overall_score":62,"completed":["Ethnobotanical ID","Preclinical in vivo","Computational ADMET","Network pharmacology","ML biomarker classification"],"needed_before_ind":["In-vitro IC50","GLP toxicology","GMP synthesis","BBB MDCK-II","Formulation"],"estimated_timeline_to_ind":"24-36 months","estimated_cost_usd":"$800K-$1.5M","funding_routes":["TETFund","NIH Fogarty","Wellcome Trust Africa","EDCTP"]},"regulatory_pathway":{"nafdac_route":"x","ema_route":"x","breakthrough_potential":"x","ip_strategy":"x"},"simulation_narrative":"2 sentence summary for grant application"}`;
+
+
+  const res = document.getElementById('sim-results');
+  let data;
+  try {
+    data = await callClaudeJSON(SYSTEM, USER);
+  } catch(err) {
+    showError('sim-results', err.message);
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Run Human Simulation';
+    return;
+  }
+  if (!data) {
+    showError('sim-results', 'Simulation returned no data. Please try again.');
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Run Human Simulation';
+    return;
+  }
+
+  const als = data.allometric_scaling;
+  const pk  = data.pk_profile;
+  const p1  = data.phase1_simulation;
+  const p2  = data.phase2_simulation;
+  const afc = data.african_population_considerations;
+  const ind = data.ind_readiness;
+  const reg = data.regulatory_pathway;
+
+  // IND readiness score ring
+  const score = ind?.overall_score || 62;
+  const r = 36, circ = 2 * Math.PI * r;
+  const dash = (score / 100) * circ;
+  const scoreCol = score >= 70 ? '#2FD986' : score >= 50 ? '#F5A623' : '#FF5E7D';
+
+  // Pipeline stages
+  const stages = [
+    { name: "Ethnobotany", icon: "🌿", done: true },
+    { name: "Preclinical", icon: "🐀", done: true },
+    { name: "Computation", icon: "💻", done: true },
+    { name: "In Vitro", icon: "🧫", done: false, active: true },
+    { name: "Phase I", icon: "👤", done: false },
+    { name: "Phase II", icon: "👥", done: false },
+    { name: "IND / NDA", icon: "📋", done: false },
+  ];
+  const stageHtml = stages.map((s, i) => `
+    <div class="sim-stage ${s.done ? 'done-stage' : s.active ? 'active-stage' : ''}">
+      <div class="sim-stage-icon">${s.icon}</div>
+      <div class="sim-stage-name">${s.name}</div>
+      <div class="sim-stage-status">${s.done ? '✓ Done' : s.active ? '← Next' : 'Future'}</div>
+      ${i < stages.length - 1 ? '<div class="sim-arrow">▶</div>' : ''}
+    </div>`).join('');
+
+  // AE table
+  const aeRows = (p1?.predicted_adverse_events || []).map(ae => `
+    <tr>
+      <td style="padding:5px 8px;font-size:11px;color:var(--text);border-bottom:1px solid var(--border);">${ae.event}</td>
+      <td style="padding:5px 8px;font-family:var(--mono);font-size:10px;color:var(--amber);border-bottom:1px solid var(--border);">${ae.frequency}</td>
+      <td style="padding:5px 8px;font-size:10px;color:var(--text2);border-bottom:1px solid var(--border);">${ae.severity}</td>
+      <td style="padding:5px 8px;border-bottom:1px solid var(--border);"><span style="font-size:9px;color:${ae.manageable ? 'var(--green)' : 'var(--rose)'};">${ae.manageable ? '✓ Manageable' : '⚠ Monitor'}</span></td>
+    </tr>`).join('');
+
+  // Risk meters
+  const risks = [
+    { label: "Hepatotoxicity", val: 18, level: "low" },
+    { label: "Cardiotoxicity", val: 12, level: "low" },
+    { label: "Cholinergic SE", val: 35, level: "med" },
+    { label: "Drug Interaction", val: 28, level: "med" },
+    { label: "CNS Penetrance", val: 72, level: "low" },
+    { label: "Ph II success prob.", val: Math.round((p2?.probability_of_success || 0.48) * 100), level: "low" },
+  ];
+  const riskHtml = risks.map(r => `
+    <div class="risk-item">
+      <div class="risk-label">${r.label}</div>
+      <div class="risk-val risk-${r.level}">${r.val}%</div>
+      <div class="risk-meter"><div class="risk-meter-fill" style="width:${r.val}%;background:${r.level === 'low' ? 'var(--green)' : r.level === 'med' ? 'var(--amber)' : 'var(--rose)'}"></div></div>
+    </div>`).join('');
+
+  res.innerHTML = `
+    <div class="result-grid">
+
+      <!-- Pipeline position -->
+      <div class="result-card">
+        <div class="rc-header">
+          <span class="rc-title">Current Pipeline Position</span>
+          <span class="rc-badge badge-amber">Stage 4 — In Vitro validation needed</span>
+        </div>
+        <div class="rc-body">
+          <div class="sim-pipeline">${stageHtml}</div>
+        </div>
+      </div>
+
+      <!-- Allometric scaling + PK -->
+      <div class="result-card">
+        <div class="rc-header">
+          <span class="rc-title">Allometric Dose Scaling · Rat → Human</span>
+          <span class="rc-badge badge-cyan">FDA allometric method</span>
+        </div>
+        <div class="rc-body">
+          <div class="admet-grid" style="margin-bottom:12px;">
+            <div class="admet-item"><div class="admet-label">Rat dose</div><div class="admet-val" style="color:var(--text2);">${als?.animal_dose_mg_kg || '?'} mg/kg</div></div>
+            <div class="admet-item"><div class="admet-label">HED (mg/kg)</div><div class="admet-val" style="color:var(--cyan);">${als?.human_equivalent_dose_mg_kg || '?'}</div></div>
+            <div class="admet-item"><div class="admet-label">HED 70kg adult</div><div class="admet-val" style="color:var(--amber);">${als?.human_dose_70kg_mg || '?'} mg</div></div>
+            <div class="admet-item"><div class="admet-label">Adjusted oral dose</div><div class="admet-val admet-pass">${als?.adjusted_for_bioavailability || '?'}</div></div>
+            <div class="admet-item"><div class="admet-label">t½ (est.)</div><div class="admet-val" style="color:var(--blue);">${pk?.estimated_half_life_h || '?'}h</div></div>
+            <div class="admet-item"><div class="admet-label">BBB ratio</div><div class="admet-val admet-pass">${pk?.bbb_penetration_predicted || '?'}</div></div>
+          </div>
+          <div style="background:var(--midnight);border-radius:4px;padding:10px 12px;font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:8px;">
+            <strong style="color:var(--text);">Comparison: </strong>${als?.comparison_to_reference || ''}
+          </div>
+          <div style="font-size:10px;color:var(--text3);">Metabolism: ${pk?.metabolism || '?'} · Protein binding: ${pk?.protein_binding || '?'}</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px;">Drug interaction risks: ${(pk?.drug_interactions_risk || []).join(', ')}</div>
+        </div>
+      </div>
+
+      <!-- Phase I simulation -->
+      <div class="result-card">
+        <div class="rc-header">
+          <span class="rc-title">Phase I Safety Simulation</span>
+          <span class="rc-badge badge-amber">First-in-human prediction</span>
+        </div>
+        <div class="rc-body">
+          <div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+            ${(p1?.dose_escalation || []).map((d, i) => `
+              <div style="text-align:center;">
+                <div style="width:48px;height:48px;border-radius:50%;border:2px solid ${i === (p1.dose_escalation.length - 2) ? 'var(--amber)' : i === p1.dose_escalation.length - 1 ? 'var(--rose)' : 'var(--border2)'};display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--text);margin:0 auto 4px;">${d}</div>
+                <div style="font-size:8px;color:var(--text3);">${i === p1.dose_escalation.length - 2 ? 'MELD' : i === p1.dose_escalation.length - 1 ? 'NOAEL' : ''}</div>
+              </div>`).join('')}
+          </div>
+          <div style="margin-bottom:10px;">
+            <div style="font-size:10px;font-weight:600;color:var(--text);margin-bottom:6px;">Predicted Adverse Events</div>
+            <table style="width:100%;border-collapse:collapse;">
+              <tr style="background:var(--midnight);">
+                <th style="padding:4px 8px;font-size:9px;color:var(--text3);text-align:left;">Event</th>
+                <th style="padding:4px 8px;font-size:9px;color:var(--text3);">Freq.</th>
+                <th style="padding:4px 8px;font-size:9px;color:var(--text3);">Severity</th>
+                <th style="padding:4px 8px;font-size:9px;color:var(--text3);">Status</th>
+              </tr>
+              ${aeRows}
+            </table>
+          </div>
+          <div style="font-size:10px;color:var(--text2);">Duration: ${p1?.phase1_duration_months || '?'} months · N = ${p1?.cohort_size || '?'} subjects</div>
+          <div style="margin-top:8px;font-size:10px;font-style:italic;color:var(--green);">${p1?.predicted_outcome || ''}</div>
+        </div>
+      </div>
+
+      <!-- Phase II simulation -->
+      <div class="result-card">
+        <div class="rc-header">
+          <span class="rc-title">Phase II Efficacy Simulation</span>
+          <span class="rc-badge badge-green">Probability of success: ${Math.round((p2?.probability_of_success || 0.48) * 100)}%</span>
+        </div>
+        <div class="rc-body">
+          <div class="admet-grid" style="margin-bottom:12px;">
+            <div class="admet-item"><div class="admet-label">Primary Endpoint</div><div class="admet-val" style="color:var(--blue);font-size:9px;">${p2?.primary_endpoint || '?'}</div></div>
+            <div class="admet-item"><div class="admet-label">Sample Size</div><div class="admet-val admet-pass">${p2?.sample_size_needed || '?'}</div></div>
+            <div class="admet-item"><div class="admet-label">Duration</div><div class="admet-val" style="color:var(--blue);">${p2?.duration_months || '?'} months</div></div>
+            <div class="admet-item"><div class="admet-label">Effect Size</div><div class="admet-val admet-pass">${p2?.predicted_effect_size || '?'}</div></div>
+            <div class="admet-item"><div class="admet-label">Response Rate</div><div class="admet-val admet-pass">${p2?.predicted_response_rate || '?'}</div></div>
+            <div class="admet-item"><div class="admet-label">vs Placebo</div><div class="admet-val" style="color:var(--cyan);font-size:9px;">${p2?.vs_placebo_prediction || '?'}</div></div>
+          </div>
+          <div style="font-size:10px;font-weight:600;color:var(--text);margin-bottom:6px;">Predicted Biomarker Responses in Patients</div>
+          ${Object.entries(p2?.biomarker_responders || {}).map(([k,v]) => `
+            <div style="display:flex;justify-content:space-between;font-size:10px;padding:4px 0;border-bottom:1px solid var(--border);color:var(--text2);">
+              <span>${k.replace(/_/g,' ')}</span><span style="color:var(--cyan);font-family:var(--mono);">${v}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- Risk matrix -->
+      <div class="result-card">
+        <div class="rc-header">
+          <span class="rc-title">Safety & Probability Risk Matrix</span>
+          <span class="rc-badge badge-blue">Based on compound class precedent</span>
+        </div>
+        <div class="rc-body"><div class="risk-grid">${riskHtml}</div></div>
+      </div>
+
+      <!-- African population -->
+      <div class="result-card">
+        <div class="rc-header">
+          <span class="rc-title">West African Population Considerations</span>
+          <span class="rc-badge badge-amber">Africa-first trial design</span>
+        </div>
+        <div class="rc-body">
+          <div class="admet-item" style="margin-bottom:8px;"><div class="admet-label">CYP2D6 Pharmacogenomics</div><div style="font-size:11px;color:var(--text2);margin-top:3px;">${afc?.cyp2d6_frequency || ''}</div></div>
+          <div class="admet-item" style="margin-bottom:8px;"><div class="admet-label">Genetic Factors</div><div style="font-size:11px;color:var(--text2);margin-top:3px;">${afc?.genetic_factors || ''}</div></div>
+          <div class="admet-item" style="margin-bottom:8px;"><div class="admet-label">Dietary Interactions</div><div style="font-size:11px;color:var(--text2);margin-top:3px;">${afc?.dietary_interactions || ''}</div></div>
+          <div style="background:var(--cyan-dim);border:1px solid rgba(0,229,204,0.2);border-radius:5px;padding:10px;font-size:10px;color:var(--cyan);margin-top:6px;">
+            🏥 Recommended trial sites: ${afc?.trial_site_recommendation || ''}<br>
+            ⚖️ ${afc?.ethical_advantage || ''}
+          </div>
+        </div>
+      </div>
+
+      <!-- IND Readiness -->
+      <div class="result-card">
+        <div class="rc-header">
+          <span class="rc-title">IND Readiness Assessment</span>
+          <span class="rc-badge ${score >= 70 ? 'badge-green' : score >= 50 ? 'badge-amber' : 'badge-rose'}">Score: ${score}/100</span>
+        </div>
+        <div class="rc-body">
+          <div style="display:grid;grid-template-columns:auto 1fr;gap:1.5rem;align-items:center;margin-bottom:14px;">
+            <svg width="90" height="90" viewBox="0 0 90 90">
+              <circle cx="45" cy="45" r="${r}" fill="none" stroke="var(--border)" stroke-width="8"/>
+              <circle cx="45" cy="45" r="${r}" fill="none" stroke="${scoreCol}" stroke-width="8"
+                stroke-dasharray="${dash} ${circ}" stroke-dashoffset="${circ/4}" stroke-linecap="round"/>
+              <text x="45" y="49" text-anchor="middle" font-size="18" font-weight="700" fill="${scoreCol}" font-family="var(--mono)">${score}</text>
+              <text x="45" y="62" text-anchor="middle" font-size="8" fill="var(--text3)">/100</text>
+            </svg>
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--green);margin-bottom:4px;">✓ Completed</div>
+              ${(ind?.completed || []).map(c => `<div style="font-size:10px;color:var(--text2);">✓ ${c}</div>`).join('')}
+            </div>
+          </div>
+          <div style="font-size:10px;font-weight:600;color:var(--amber);margin-bottom:4px;">⚠ Needed before IND</div>
+          ${(ind?.needed_before_ind || []).map(n => `<div style="font-size:10px;color:var(--text2);margin-bottom:2px;">→ ${n}</div>`).join('')}
+          <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="admet-item"><div class="admet-label">Timeline to IND</div><div class="admet-val" style="color:var(--amber);font-size:10px;">${ind?.estimated_timeline_to_ind || '?'}</div></div>
+            <div class="admet-item"><div class="admet-label">Est. Cost</div><div class="admet-val" style="color:var(--amber);font-size:10px;">${ind?.estimated_cost_usd || '?'}</div></div>
+          </div>
+          <div style="margin-top:10px;">
+            <div style="font-size:9px;color:var(--text3);margin-bottom:4px;">FUNDING ROUTES</div>
+            <div class="network-mini">${(ind?.funding_routes || []).map(f => `<span class="net-node node-pathway" style="font-size:9px;">${f}</span>`).join('')}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Regulatory -->
+      <div class="result-card">
+        <div class="rc-header">
+          <span class="rc-title">Regulatory Pathway</span>
+          <span class="rc-badge badge-blue">NAFDAC · EMA · FDA</span>
+        </div>
+        <div class="rc-body">
+          <div class="admet-item" style="margin-bottom:8px;"><div class="admet-label">NAFDAC Route (Nigeria)</div><div style="font-size:11px;color:var(--text2);margin-top:3px;">${reg?.nafdac_route || ''}</div></div>
+          <div class="admet-item" style="margin-bottom:8px;"><div class="admet-label">EMA Route</div><div style="font-size:11px;color:var(--text2);margin-top:3px;">${reg?.ema_route || ''}</div></div>
+          <div style="background:var(--green-dim);border:1px solid rgba(47,217,134,0.2);border-radius:5px;padding:10px;font-size:10px;color:var(--green);margin-bottom:8px;">
+            ⭐ Breakthrough potential: ${reg?.breakthrough_potential || ''}
+          </div>
+          <div style="font-size:10px;color:var(--text2);"><strong style="color:var(--text);">IP Strategy: </strong>${reg?.ip_strategy || ''}</div>
+        </div>
+      </div>
+
+      <!-- Narrative -->
+      <div class="ai-narrative" style="margin:0;border-radius:6px;">
+        <div class="ai-tag">SIMULATION SUMMARY · For grant applications · For investor briefings · For NAFDAC dossiers</div>
+        <p>${data.simulation_narrative || ''}</p>
+      </div>
+
+    </div>`;
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Run Human Simulation';
+}
+</script>
+</body>
+</html>

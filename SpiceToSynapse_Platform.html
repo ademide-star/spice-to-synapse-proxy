@@ -232,7 +232,7 @@ svg.mini-chart{width:100%;height:60px;}
   <div class="header-meta">
     <span class="ws-tag">🎓 NSN 2026 Workshop</span>
     <span class="header-badge">AI-Powered</span>
-    <span style="color:var(--text3);">COEST · OOU · Nigeria</span>
+    <span style="color:var(--text3);">GRASP·DSI.Africa Nigeria</span>
   </div>
 </header>
 
@@ -537,7 +537,7 @@ async function callClaude(systemPrompt, userPrompt) {
   // ── Proxy URL routing ──────────────────────────────────────────
   // localhost   → your Windows laptop proxy (start-proxy.bat)
   // live site   → Railway proxy (update RAILWAY_URL below after deploying)
-  const RAILWAY_URL = "https://spice-to-synapse-proxy.up.railway.app/api/claude";
+  const RAILWAY_URL = "https://spice-to-synapse-proxy-production.up.railway.app";
   const PROXY_URL =
     (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
       ? "http://localhost:3001/api/claude"
